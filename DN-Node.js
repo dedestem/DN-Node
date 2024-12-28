@@ -14,6 +14,7 @@ export const Api = Express();
 let Server = Api.listen(0);
 
 // Configure
+const DNNodeVersion = 1.1;
 Api.use(Helmet());
 
 // Modules
@@ -37,6 +38,10 @@ export async function RegisterNode(Port) {
     Api.get('/Commit', async (req, res) => {
         const commit = await GetCommit(); // Same for GetCommit
         res.send(commit);
+    });
+
+    Api.get('/CoreVersion', async (req, res) => {
+        res.send(DNNodeVersion.toString());
     });
 
     // 404 - Not Found
