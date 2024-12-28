@@ -15,7 +15,7 @@ export let State = "Starting";
 let Server = Api.listen(0);
 
 // Configure
-const DNNodeVersion = 1.2;
+const DNNodeVersion = 1.3;
 const MinimumInfoVersion = 1;
 Api.use(Helmet());
 
@@ -44,13 +44,8 @@ export async function RegisterNode(Port) {
         res.send(uptime);
     });
 
-    Api.get('/Commit', async (req, res) => {
-        const commit = await GetCommit(); // Same for GetCommit
-        res.send(commit);
-    });
-
-    Api.get('/CoreVersion', async (req, res) => {
-        res.send(DNNodeVersion.toString());
+    Api.get('/Version', async (req, res) => {
+        res.send(await GetVersion());
     });
 
     // 404 - Not Found
@@ -97,16 +92,19 @@ export async function GetUptime() {
         minutes: minutes % 60,
         seconds: seconds % 60
     };
-
-    console.debug(uptime);
     return uptime;
 }
 
-
-export async function GetCommit() {
+export async function GetVersion() {
     const Info = await ReadJson("./Info.json");
     const Commit = Info.Commit;
+    const InfoVersion = Info.InfoVersion;
 
-    console.debug(Commit);
-    return Commit.toString();
+    const Version = {
+        DNNodeVersion: DNNodeVersion,
+        MinimumInfoVersion: MinimumInfoVersion,
+        Commit: Commit,
+        InfoVersion: InfoVersion,
+    };
+    return Version;
 }
