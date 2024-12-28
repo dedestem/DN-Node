@@ -42,8 +42,8 @@ fi
 
 # Get Info.json
 COMMIT_HASH=$(git rev-parse HEAD)
-echo "{ \"Commit\": \"$COMMIT_HASH\" }" > "Info.json"
-mv Info.json $NODE_DIR"/Info.json"
+echo "{ \"Commit\": \"$COMMIT_HASH\", "InfoVersion": 1 }" > "Info.json"
+mv Info.json "$NODE_DIRInfo.json"
 log "Using commit: $COMMIT_HASH"
 
 # Installeer dependencies
