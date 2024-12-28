@@ -15,7 +15,7 @@ export let State = "Starting";
 let Server = Api.listen(0);
 
 // Configure
-const DNNodeVersion = 1.3;
+const DNNodeVersion = 1.4;
 const MinimumInfoVersion = 1;
 Api.use(Helmet());
 
