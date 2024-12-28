@@ -3,7 +3,7 @@
 # Configuratie
 NODE_DIR="DN-Node/"
 BRANCH="main"
-LOG_FILE="Node.log"
+LOG_FILE="DN-Node.log"
 NODE_NAME="DN-Node"
 ENTRY_FILE="index.js"
 REPO_URL="https://github.com/dedestem/DN-Node.git"
@@ -37,15 +37,12 @@ log "Deploy gestart"
 
 # Get REPO
 if [ -d "$NODE_DIR" ]; then
-    log "Local Repo gevonden - Repo updaten!"
+    rm -rf "$NODE_DIR"
+    git clone $REPO_URL $NODE_DIR >> $LOG_FILE 2>&1
+    log "Git clone succesvol"
     cd $NODE_DIR
-    git fetch origin $BRANCH >> $LOG_FILE 2>&1
-    log "Git fetch succesvol"
-    
-    git reset --hard origin/$BRANCH >> $LOG_FILE 2>&1
-    log "Git reset succesvol naar $BRANCH"
 else
-    log "Local Repo niet gevonden - Repo ophalen van cloud!"
+    log "Klonen"
     git clone $REPO_URL $NODE_DIR >> $LOG_FILE 2>&1
     log "Git clone succesvol"
     cd $NODE_DIR
