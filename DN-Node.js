@@ -11,10 +11,12 @@ import Helmet from 'helmet';
 
 // Objects
 export const Api = Express();
+export let State = "Starting";
 let Server = Api.listen(0);
 
 // Configure
-const DNNodeVersion = 1.1;
+const DNNodeVersion = 1.2;
+const MinimumInfoVersion = 1;
 Api.use(Helmet());
 
 // Modules
@@ -23,13 +25,20 @@ import { ReadJson, WriteJson } from './Utils.js';
 // Collect information
 (async () => {
     const Info = await ReadJson("./Info.json");
-
-    // Preserve the Commit field
+    if (Info.InfoVersion < MinimumInfoVersion) {
+        State = "Outdated";
+        console.error("Info outdated");
+    }
+    
     Info.Start = new Date().toISOString();
     WriteJson('./Info.json', Info);
 })();
 
 export async function RegisterNode(Port) {
+    Api.get('/State', async (req, res) => {
+        res.send(State);
+    });
+
     Api.get('/Uptime', async (req, res) => {
         const uptime = await GetUptime(); // Assuming GetUptime will now handle async
         res.send(uptime);
@@ -57,7 +66,8 @@ export async function RegisterNode(Port) {
 
     Server.close(() => {
         Server = Api.listen(Port, () => {
-          console.log(`Server now running on port ${Port}`);
+            console.log(`Server now running on port ${Port}`);
+            State = "Healthy";
         });
     });
 }
@@ -85,7 +95,7 @@ export async function GetUptime() {
         days: days % 365,
         hours: hours % 24,
         minutes: minutes % 60,
-        seconds: seconds % 60 
+        seconds: seconds % 60
     };
 
     console.debug(uptime);
