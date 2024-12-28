@@ -7,4 +7,4 @@ Api.get('/', (req, res) => {
 });
 
 // Register
-RegisterNode();
+RegisterNode(3000);

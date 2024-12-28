@@ -11,8 +11,7 @@ import Helmet from 'helmet';
 
 // Objects
 export const Api = Express();
-const Port = 3000;
-const Server = Api.listen(Port);
+let Server = Api.listen(0);
 
 // Configure
 Api.use(Helmet());
@@ -29,7 +28,7 @@ import { ReadJson, WriteJson } from './Utils.js';
     WriteJson('./Info.json', Info);
 })();
 
-export async function RegisterNode() {
+export async function RegisterNode(Port) {
     Api.get('/Uptime', async (req, res) => {
         const uptime = await GetUptime(); // Assuming GetUptime will now handle async
         res.send(uptime);
@@ -49,6 +48,12 @@ export async function RegisterNode() {
     Api.use((err, req, res, next) => {
         console.error(err.stack);
         res.status(500).send('Something broke!');
+    });
+
+    Server.close(() => {
+        Server = Api.listen(Port, () => {
+          console.log(`Server now running on port ${Port}`);
+        });
     });
 }
 
