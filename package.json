@@ -1,0 +1,24 @@
+{
+  "name": "dn-node",
+  "version": "1.0.0",
+  "description": "An template for DN-Nodes",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo no tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dedestem/DN-Node.git"
+  },
+  "author": "Davidnet",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dedestem/DN-Node/issues"
+  },
+  "homepage": "https://github.com/dedestem/DN-Node#readme",
+  "dependencies": {
+    "express": "^4.21.2",
+    "helmet": "^8.0.0"
+  }
+}
