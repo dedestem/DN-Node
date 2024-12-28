@@ -15,7 +15,7 @@ export let State = "Starting";
 let Server = Api.listen(0);
 
 // Configure
-const DNNodeVersion = 1.4;
+const DNNodeVersion = 1.5;
 const MinimumInfoVersion = 1;
 Api.use(Helmet());
 
@@ -72,6 +72,15 @@ process.on('SIGTERM', () => {
     console.debug('Server shutdown request received!');
     Server.close(() => {
         console.debug('HTTP server closed');
+        process.exit(0);
+    });
+});
+
+process.on('SIGHUP', () => {
+    console.debug('Server shutdown request received!');
+    Server.close(() => {
+        console.debug('HTTP server closed');
+        process.exit(0);
     });
 });
 

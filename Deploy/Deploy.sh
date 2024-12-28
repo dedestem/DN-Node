@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#?Configuratie
+# Configuratie
 NODE_DIR="DN-Node/"
 BRANCH="main"
 LOG_FILE="Node.log"
@@ -9,63 +9,74 @@ ENTRY_FILE="index.js"
 REPO_URL="https://github.com/dedestem/DN-Node.git"
 DEPLOY_VER="1"
 
+# Zet script op om te stoppen bij fout
+set -e
+
+# CD to dir of script
+cd "$(dirname "$0")" || exit 1
+
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> $LOG_FILE
 }
 
+# Controleer op argumenten
+if [ "$1" == "Stop" ]; then
+    log "Stop-commando ontvangen - Node stoppen"
+    if screen -list | grep -q "$NODE_NAME"; then
+        screen -S "$NODE_NAME" -X quit
+        log "Screen sessie $NODE_NAME gestopt"
+    else
+        log "Geen actieve screen sessie gevonden voor $NODE_NAME"
+    fi
+    exit 0
+fi
+
 # Deploy start
+log "==============================================="
 log "Deploy gestart"
 
 # Get REPO
 if [ -d "$NODE_DIR" ]; then
-    cd $NODE_DIR
     log "Local Repo gevonden - Repo updaten!"
+    cd $NODE_DIR
     git fetch origin $BRANCH >> $LOG_FILE 2>&1
-    if [ $? -ne 0 ]; then
-        log "Error: git fetch failed"
-        exit 1
-    fi
+    log "Git fetch succesvol"
+    
     git reset --hard origin/$BRANCH >> $LOG_FILE 2>&1
-    if [ $? -ne 0 ]; then
-        log "Error: git reset failed"
-        exit 1
-    fi
+    log "Git reset succesvol naar $BRANCH"
 else
     log "Local Repo niet gevonden - Repo ophalen van cloud!"
     git clone $REPO_URL $NODE_DIR >> $LOG_FILE 2>&1
-    if [ $? -ne 0 ]; then
-        log "Error: git clone failed"
-        exit 1
-    fi
+    log "Git clone succesvol"
     cd $NODE_DIR
 fi
 
-# Get Info.json
+# Verkrijg commit hash en schrijf naar Info.json
 COMMIT_HASH=$(git rev-parse HEAD)
-echo "{ \"Commit\": \"$COMMIT_HASH\", \"InfoVersion\": 1 }" > "Info.json"
-mv Info.json "$NODE_DIRInfo.json"
-log "Using commit: $COMMIT_HASH"
+cd ..
+INFO_FILE="${NODE_DIR}Info.json"  # Correct path
+echo "{ \"Commit\": \"$COMMIT_HASH\", \"InfoVersion\": 1 }" > $INFO_FILE
+log "Commit hash opgeslagen in $INFO_FILE"
 
 # Installeer dependencies
-log "Installing dependencies"
+log "Installeer dependencies"
 npm install >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "Error: npm install failed"
-    exit 1
-fi
+log "Dependencies geïnstalleerd"
+
+# Log de Node.js versie voor transparantie
+NODE_VERSION=$(node -v)
+log "Node.js versie: $NODE_VERSION"
 
 # Start node
 log "Starting node"
 if screen -list | grep -q "$NODE_NAME"; then
-    log "Screen session detected! $NODE_NAME already running. Closing previous node!"
+    log "Screen sessie gedetecteerd! $NODE_NAME al draaiend. Sluiten van oude node!"
     screen -S "$NODE_NAME" -X quit
 fi
 
+cd "$NODE_DIR"
+log "$NODE_NAME node $ENTRY_FILE"
 screen -dmS "$NODE_NAME" node $ENTRY_FILE >> $LOG_FILE 2>&1
-if [ $? -ne 0 ]; then
-    log "Error: failed to start node"
-    exit 1
-fi
+log "Node gestart in screen sessie $NODE_NAME"
 
-log "Node $NODE_NAME running."
-log "Deploy complete"
+log "Deploy compleet"
